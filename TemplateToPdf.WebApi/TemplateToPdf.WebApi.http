@@ -1,0 +1,6 @@
+@TemplateToPdf.WebApi_HostAddress = http://localhost:5157
+
+GET {{TemplateToPdf.WebApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
