@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
-using PuppeteerSharp.Media;
 using PuppeteerSharp;
-using System.Xml.Schema;
+using PuppeteerSharp.Media;
 using TemplateToPdf.WebApi.DAL.Entities;
 using TemplateToPdf.WebApi.DAL.Repositories.Interfaces;
 using TemplateToPdf.WebApi.Services.Interfaces;
@@ -11,29 +10,36 @@ namespace TemplateToPdf.WebApi.Services.Implementations
 {
     public class EPolicyKitDocumentGenerationService : IEPolicyKitDocumentGenerationService
     {
-        private readonly IContentTableRepository _contentTableRepository;
+        private readonly ITemplateRepository _temlateRepository;
         private readonly IMapper _mapper;
 
-        public EPolicyKitDocumentGenerationService(IContentTableRepository contentTableRepository, IMapper mapper)
+        public EPolicyKitDocumentGenerationService(ITemplateRepository templateRepository, IMapper mapper)
         {
-            _contentTableRepository = contentTableRepository;
+            _temlateRepository = templateRepository;
             _mapper = mapper;
         }
 
 
-        public async Task<DocumentModel> GenrateDocumentAsync(UserDataTable userData)
+        public async Task<DocumentModel> GenerateDocumentAsync(UserData userData)
         {
-            ContentTable contentRepo= await _contentTableRepository.GetContentByDocumentCodeAsync("userpolicy");
-            ContentModel content = _mapper.Map<ContentModel>(contentRepo);
+            try
+            {
+                Template contentRepo = await _temlateRepository.GetTemplateByTemplateCodeAsync("userpolicy");
+                ContentModel content = _mapper.Map<ContentModel>(contentRepo);
 
-            string populatedData = PopulateDataInHtml(content.Content!, userData);
+                string populatedData = PopulateDataInHtml(content.Content!, userData);
 
-            DocumentModel document= await CreateDocumentAsync(populatedData, userData);
+                DocumentModel document = await CreateDocumentAsync(populatedData, userData);
 
-            return document;
+                return document;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(message:"No template found for the required template code.");
+            }
         }
 
-        public string PopulateDataInHtml(string html,  UserDataTable userData)
+        public string PopulateDataInHtml(string html,  UserData userData)
         {
             html = html.Replace("{{Name}}", userData.Name);
             html = html.Replace("{{PolicyNumber}}",userData.PolicyNumber);
@@ -46,7 +52,7 @@ namespace TemplateToPdf.WebApi.Services.Implementations
             return html;
         }
 
-        public async Task<DocumentModel> CreateDocumentAsync(string populatedData, UserDataTable userData)
+        public async Task<DocumentModel> CreateDocumentAsync(string populatedData, UserData userData)
         {
             var browserFetcher = new BrowserFetcher();
             await browserFetcher.DownloadAsync();
@@ -57,7 +63,7 @@ namespace TemplateToPdf.WebApi.Services.Implementations
             {
                 Format = PaperFormat.A4,
                 PrintBackground = true,
-                MarginOptions = new MarginOptions { Top = "10px", Bottom = "10px" } 
+                MarginOptions = new MarginOptions { Top = "10px", Bottom = "10px" }
             });
 
             await browser.CloseAsync();

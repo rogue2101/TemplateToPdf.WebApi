@@ -5,20 +5,20 @@ using TemplateToPdf.WebApi.DAL.Repositories.Interfaces;
 
 namespace TemplateToPdf.WebApi.DAL.Repositories.Implementations
 {
-    public class ContentTableRepository : IContentTableRepository
+    public class TemplateRepository : ITemplateRepository
     {
         private readonly DocumentStorageDbContext _storageContext;
-        public ContentTableRepository(DocumentStorageDbContext documentStorageDbContext)
+        public TemplateRepository(DocumentStorageDbContext documentStorageDbContext)
         {
             _storageContext = documentStorageDbContext;
         }
-        public async Task<ContentTable> GetContentByDocumentCodeAsync(string docCode)
+        public async Task<Template> GetTemplateByTemplateCodeAsync(string docCode)
         {
-            var content = await _storageContext.ContentTable.FirstOrDefaultAsync(p => p.DocumentCode == docCode);
+            var content = await _storageContext.Content.FirstOrDefaultAsync(p => p.DocumentCode == docCode);
 
             if(content == null)
             {
-                return null!;
+                throw new ArgumentNullException(nameof(content));
             }
             return content;
         }

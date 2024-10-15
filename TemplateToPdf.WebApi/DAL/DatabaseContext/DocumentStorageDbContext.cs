@@ -16,11 +16,13 @@ public partial class DocumentStorageDbContext : DbContext
     {
     }
 
-    public virtual DbSet<ContentTable> ContentTable { get; set; }
+    public virtual DbSet<Template> Content { get; set; }
 
-    public virtual DbSet<DocumentStoringTable> DocumentStroringTable { get; set; }
+    public virtual DbSet<Document> Document { get; set; }
 
-    public virtual DbSet<UserDataTable> UserDataTable { get; set; }
+    public virtual DbSet<UserData> UserData { get; set; }
+
+    public virtual DbSet<Messaging> Messaging { get; set; }
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }

@@ -8,9 +8,9 @@ namespace TemplateToPdf.WebApi.Services.AutoMapper
     {
         public AutoMapperConfig()
         {
-            CreateMap<RequestModel, UserDataTable>().ReverseMap();
-            CreateMap<ContentTable, ContentModel>().ReverseMap();
-            CreateMap<DocumentModel, DocumentStoringTable>().ReverseMap();
+            CreateMap<RequestModel, UserData>().ReverseMap();
+            CreateMap<Template, ContentModel>().ReverseMap();
+            CreateMap<DocumentModel, Document>().ReverseMap();
         }
     }
 }

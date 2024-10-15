@@ -6,6 +6,6 @@ namespace TemplateToPdf.WebApi.Services.Interfaces
 {
     public interface IUserDataService
     {
-        public Task<IActionResult> PostUserDataAsync(RequestModel requestModel);
+        public Task<IActionResult> PostDataAsync(RequestModel requestModel);
     }
 }

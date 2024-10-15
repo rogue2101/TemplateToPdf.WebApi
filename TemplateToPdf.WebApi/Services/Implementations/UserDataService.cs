@@ -1,11 +1,9 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Http.Features;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.DotNet.Scaffolding.Shared.Messaging;
+using Hangfire;
 using TemplateToPdf.WebApi.DAL.Entities;
-using TemplateToPdf.WebApi.DAL.Repositories.Implementations;
 using TemplateToPdf.WebApi.DAL.Repositories.Interfaces;
+using TemplateToPdf.WebApi.Services.Constants;
 using TemplateToPdf.WebApi.Services.Interfaces;
 using TemplateToPdf.WebApi.Services.Models;
 
@@ -13,30 +11,63 @@ namespace TemplateToPdf.WebApi.Services.Implementations
 {
     public class UserDataService : IUserDataService
     {
-        private readonly IUserDataTableRepository _userDataTableRepository;
+        private readonly IUserDataRepository _userDataRepository;
         private readonly IEPolicyKitDocumentGenerationService _policyKitDocumentGenerationService;
-        private readonly IDocumentStoringTableRepository _documentStoringTableRepository;
+        private readonly IDocumentRepository _documentRepository;
+        private readonly IMessagingRepository _messagingRepository;
         private readonly IEmailService _emailService;
         private readonly IMapper _mapper;
-        public UserDataService(IUserDataTableRepository userDataTableRepository, IMapper mapper, IEPolicyKitDocumentGenerationService policyKitDocumentGenerationService, IDocumentStoringTableRepository documentStoringTable, IEmailService emailService)
+        public UserDataService(IUserDataRepository userDataTableRepository, IMapper mapper, IEPolicyKitDocumentGenerationService policyKitDocumentGenerationService, IDocumentRepository documentStoringTable, IEmailService emailService, IMessagingRepository messagingRepository)
         {
-            _userDataTableRepository = userDataTableRepository;
+            _userDataRepository = userDataTableRepository;
             _mapper = mapper;
             _policyKitDocumentGenerationService = policyKitDocumentGenerationService;
-            _documentStoringTableRepository = documentStoringTable;
+            _documentRepository = documentStoringTable;
             _emailService = emailService;
+            _messagingRepository = messagingRepository;
         }
-        public async Task<IActionResult> PostUserDataAsync(RequestModel requestModel)
+        public async Task<IActionResult> PostDataAsync(RequestModel requestModel)
         {
-            //For creating the user data and storing for further uses
-            UserDataTable userData = await _userDataTableRepository.WriteUserDataAsync(_mapper.Map<UserDataTable>(requestModel));
-            
-            //For generating the pdf for user data and storing for further uses
-            DocumentStoringTable generatedDoc =  await _documentStoringTableRepository.SaveDocumentAsync(_mapper.Map<DocumentStoringTable>(await _policyKitDocumentGenerationService.GenrateDocumentAsync(userData)));
+            //For creating the user data and storing in database
+            try
+            {
+                //creating user
+                var user = _mapper.Map<UserData>(requestModel);
+                UserData userData = await _userDataRepository.AddAsync(user);
 
-            //For sending email to the user email address
-            await _emailService.SendEmailAsync(userData.EmailAddress!, generatedDoc.Content!, generatedDoc.FileName!);
-            
+                //For generating the pdf for user data 
+                var generatedDocument = await _policyKitDocumentGenerationService.GenerateDocumentAsync(userData);
+                var generatedMappedDocument = _mapper.Map<Document>(generatedDocument);
+                Document generatedDoc = await _documentRepository.AddAsync(generatedMappedDocument);
+
+                //Adding data to messaging table
+                Messaging messageEntity = new Messaging()
+                {
+                    PolicyNumber = userData.PolicyNumber,
+                    Destination = userData.EmailAddress,
+                    DestinationCc = null,
+                    DestinationBcc = null,
+                    Body = MessagingConstants.bodyConst.Replace("USER", userData.Name),
+                    Attempt = 0,
+                    MaxAttempt = MessagingConstants.maxAttemptConst,
+                    IsSent = false,
+                    IsDeleted = false,
+                    CreatedDateTime = DateTime.UtcNow,
+                    UpdatedDateTime = DateTime.UtcNow
+                };
+
+                await _messagingRepository.AddAsync(messageEntity);
+
+                //For sending email to the user email address   */5 * * * 1-5
+                RecurringJob.AddOrUpdate<EmailService>("EmailServiceBackgroundJob", x => x.EmailBackgroundJob() , "* * * * *");
+
+
+                return new OkObjectResult(new { message = "User data saved successfully", data = userData });
+            }
+            catch(Exception ex)
+            {
+                throw new Exception(message:"User Data cannot be null.");
+            }
             ////For saving the stored data in pdf form in the local desktop
             //string customPath = @"C:\Users\remotestate\Documents\CreatedDocuments";
 
@@ -50,7 +81,6 @@ namespace TemplateToPdf.WebApi.Services.Implementations
             //await System.IO.File.WriteAllBytesAsync(filePath, generatedDoc.Content!);
 
             //Returning ok result after the user data has been saved and generated succesfully
-            return new OkObjectResult(new { message = "User data saved successfully", data = userData });
         }
     }
 }

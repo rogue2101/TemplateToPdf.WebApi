@@ -2,6 +2,6 @@
 {
     public interface IEmailService
     {
-        public Task SendEmailAsync(string recipientEmail, byte[] fileContent, string fileName);
+        public Task EmailBackgroundJob();
     }
 }

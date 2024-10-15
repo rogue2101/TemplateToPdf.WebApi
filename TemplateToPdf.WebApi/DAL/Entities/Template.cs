@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace TemplateToPdf.WebApi.DAL.Entities;
 
-public partial class ContentTable
+public partial class Template
 {
     [Key]
     public int Id { get; set; }

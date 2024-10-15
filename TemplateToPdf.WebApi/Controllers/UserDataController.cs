@@ -30,7 +30,7 @@ namespace TemplateToPdf.WebApi.Controllers
             {
                 return NoContent();
             }
-            await _userDataService.PostUserDataAsync(requestModel);
+            await _userDataService.PostDataAsync(requestModel);
             return Ok();
         }
     }

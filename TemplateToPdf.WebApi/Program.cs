@@ -1,3 +1,4 @@
+using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using TemplateToPdf.WebApi.DAL.DatabaseContext;
 using TemplateToPdf.WebApi.DAL.Repositories.Implementations;
@@ -14,9 +15,10 @@ builder.Services.AddControllers();
 
 builder.Services.AddDbContext<DocumentStorageDbContext>(options=> options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddTransient<IContentTableRepository, ContentTableRepository>();
-builder.Services.AddTransient<IUserDataTableRepository, UserDataTableRepository>();
-builder.Services.AddTransient<IDocumentStoringTableRepository, DocumentStoringTableRepository>();
+builder.Services.AddTransient<ITemplateRepository, TemplateRepository>();
+builder.Services.AddTransient<IUserDataRepository, UserDataRepository>();
+builder.Services.AddTransient<IDocumentRepository, DocumentRepository>();
+builder.Services.AddTransient<IMessagingRepository, MessagingRepository>();
 
 builder.Services.AddAutoMapper(typeof(AutoMapperConfig));
 
@@ -28,6 +30,14 @@ builder.Services.AddTransient<IEmailService, EmailService>();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddHangfire((sp, config) =>
+{
+    var connectionString = sp.GetRequiredService<IConfiguration>().GetConnectionString("DefaultConnection");
+    config.UseSqlServerStorage(connectionString);
+});
+
+builder.Services.AddHangfireServer();
 
 var app = builder.Build();
 
@@ -41,6 +51,8 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
+app.UseHangfireDashboard();
 
 app.MapControllers();
 

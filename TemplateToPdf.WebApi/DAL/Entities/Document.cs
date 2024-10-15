@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace TemplateToPdf.WebApi.DAL.Entities;
 
-public partial class DocumentStoringTable
+public partial class Document
 {
     public string? ObjectCode { get; set; }
 

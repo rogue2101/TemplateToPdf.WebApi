@@ -5,6 +5,6 @@ namespace TemplateToPdf.WebApi.Services.Interfaces
 {
     public interface IEPolicyKitDocumentGenerationService
     {
-        public Task<DocumentModel> GenrateDocumentAsync(UserDataTable userData);
+        public Task<DocumentModel> GenerateDocumentAsync(UserData userData);
     }
 }
