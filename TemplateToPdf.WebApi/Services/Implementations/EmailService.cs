@@ -4,6 +4,7 @@ using TemplateToPdf.WebApi.Services.Interfaces;
 using System.Net.Http;
 using TemplateToPdf.WebApi.DAL.Repositories.Interfaces;
 using TemplateToPdf.WebApi.DAL.Entities;
+using Hangfire;
 
 namespace TemplateToPdf.WebApi.Services.Implementations
 {
@@ -18,6 +19,9 @@ namespace TemplateToPdf.WebApi.Services.Implementations
             _messagingRepository = messagingRepository;
             _documentRepository = documentRepository;
         }
+
+        [DisableConcurrentExecution(60)]
+        [AutomaticRetry(Attempts = 5)]
         public async Task EmailBackgroundJob()
         {
             List<Messaging> messagingEntities = await _messagingRepository.GetAllAsync();

@@ -58,8 +58,8 @@ namespace TemplateToPdf.WebApi.Services.Implementations
 
                 await _messagingRepository.AddAsync(messageEntity);
 
-                //For sending email to the user email address   */5 * * * 1-5
-                RecurringJob.AddOrUpdate<EmailService>("EmailServiceBackgroundJob", x => x.EmailBackgroundJob() , "* * * * *");
+                //For sending email to the user email address
+                RecurringJob.AddOrUpdate<EmailService>("EmailServiceBackgroundJob", x => x.EmailBackgroundJob() , "*/5 * * * 1-5");
 
 
                 return new OkObjectResult(new { message = "User data saved successfully", data = userData });
@@ -68,19 +68,6 @@ namespace TemplateToPdf.WebApi.Services.Implementations
             {
                 throw new Exception(message:"User Data cannot be null.");
             }
-            ////For saving the stored data in pdf form in the local desktop
-            //string customPath = @"C:\Users\remotestate\Documents\CreatedDocuments";
-
-            //if (!Directory.Exists(customPath))
-            //{
-            //    Directory.CreateDirectory(customPath);
-            //}
-
-            //string filePath = Path.Combine(customPath, "document.pdf");
-
-            //await System.IO.File.WriteAllBytesAsync(filePath, generatedDoc.Content!);
-
-            //Returning ok result after the user data has been saved and generated succesfully
         }
     }
 }
