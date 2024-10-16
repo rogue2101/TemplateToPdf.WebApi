@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using Hangfire;
 using TemplateToPdf.WebApi.DAL.Entities;
 using TemplateToPdf.WebApi.DAL.Repositories.Interfaces;
 using TemplateToPdf.WebApi.Services.Constants;
@@ -57,10 +56,6 @@ namespace TemplateToPdf.WebApi.Services.Implementations
                 };
 
                 await _messagingRepository.AddAsync(messageEntity);
-
-                //For sending email to the user email address
-                RecurringJob.AddOrUpdate<EmailService>("EmailServiceBackgroundJob", x => x.EmailBackgroundJob() , "*/5 * * * 1-5");
-
 
                 return new OkObjectResult(new { message = "User data saved successfully", data = userData });
             }

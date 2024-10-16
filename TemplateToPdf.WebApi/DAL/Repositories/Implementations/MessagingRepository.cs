@@ -31,7 +31,7 @@ namespace TemplateToPdf.WebApi.DAL.Repositories.Implementations
         {
             if(entity == null )
             {
-                throw new ArgumentNullException("Null Entiry Found");
+                throw new ArgumentNullException("Null Entity Found");
             }
             _dbContext.Messaging.Update(entity);
             await _dbContext.SaveChangesAsync();
@@ -39,7 +39,7 @@ namespace TemplateToPdf.WebApi.DAL.Repositories.Implementations
 
         public async Task UpdateAllAsync(List<Messaging> messagings)
         {
-            foreach(Messaging entity in messagings)
+            foreach (Messaging entity in messagings)
             {
                 _dbContext.Entry(entity).State = EntityState.Modified;
             }
