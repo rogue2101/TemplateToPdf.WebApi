@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using TemplateToPdf.WebApi.DAL.Entities;
 
 namespace TemplateToPdf.WebApi.DAL.DatabaseContext;

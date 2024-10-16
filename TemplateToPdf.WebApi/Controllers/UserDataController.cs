@@ -1,13 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Hangfire;
-using Microsoft.AspNetCore.Http;
+﻿using Hangfire;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using TemplateToPdf.WebApi.DAL.DatabaseContext;
-using TemplateToPdf.WebApi.DAL.Entities;
 using TemplateToPdf.WebApi.Services.Implementations;
 using TemplateToPdf.WebApi.Services.Interfaces;
 using TemplateToPdf.WebApi.Services.Models;

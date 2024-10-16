@@ -1,7 +1,6 @@
 ﻿using System.Net.Mail;
 using System.Net;
 using TemplateToPdf.WebApi.Services.Interfaces;
-using System.Net.Http;
 using TemplateToPdf.WebApi.DAL.Repositories.Interfaces;
 using TemplateToPdf.WebApi.DAL.Entities;
 using Hangfire;
